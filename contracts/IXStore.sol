@@ -28,8 +28,10 @@ interface IXStore {
         IERC721 nft;
         EnumerableSet.UintSet holdings;
         EnumerableSet.UintSet reserves;
+        mapping(uint256 => address) requester;
         mapping(uint256 => bool) isEligible;
         mapping(uint256 => bool) shouldReserve;
+        bool flipEligOnRedeem;
         bool negateEligibility;
         bool isFinalized;
         bool isClosed;
@@ -85,6 +87,11 @@ interface IXStore {
         view
         returns (uint256);
 
+    function requester(uint256 vaultId, uint256 id)
+        external
+        view
+        returns (address);
+
     function isEligible(uint256 vaultId, uint256 id)
         external
         view
@@ -94,6 +101,8 @@ interface IXStore {
         external
         view
         returns (bool);
+
+    function flipEligOnRedeem(uint256 vaultId) external view returns (bool);
 
     function negateEligibility(uint256 vaultId) external view returns (bool);
 
@@ -126,7 +135,7 @@ interface IXStore {
 
     function setXTokenAddress(uint256 vaultId, address _xTokenAddress) external;
 
-    function setAssetAddress(uint256 vaultId, address _assetAddress) external;
+    function setNftAddress(uint256 vaultId, address _assetAddress) external;
 
     function setManager(uint256 vaultId, address _manager) external;
 
@@ -142,10 +151,15 @@ interface IXStore {
 
     function reservesRemove(uint256 vaultId, uint256 elem) external;
 
+    function setRequester(uint256 vaultId, uint256 id, address _requester)
+        external;
+
     function setIsEligible(uint256 vaultId, uint256 id, bool _bool) external;
 
     function setShouldReserve(uint256 vaultId, uint256 id, bool _shouldReserve)
         external;
+
+    function setFlipEligOnRedeem(uint256 vaultId, bool flipElig) external;
 
     function setNegateEligibility(uint256 vaultId, bool negateElig) external;
 
@@ -170,6 +184,8 @@ interface IXStore {
     function setTokenBalance(uint256 vaultId, uint256 _tokenBalance) external;
 
     function setIsD2Vault(uint256 vaultId, bool _isD2Vault) external;
+
+    function setD2AssetAddress(uint256 vaultId, address _assetAddress) external;
 
     function setD2Asset(uint256 vaultId) external;
 

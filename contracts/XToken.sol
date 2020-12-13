@@ -8,11 +8,12 @@ import "./ERC20.sol";
 import "./ERC20Burnable.sol";
 
 contract XToken is Context, Ownable, ERC20Burnable {
-    constructor(string memory name, string memory symbol)
+    constructor(string memory name, string memory symbol, address _owner)
         public
         ERC20(name, symbol)
     {
         initOwnable();
+        transferOwnership(_owner);
         _mint(msg.sender, 0);
     }
 

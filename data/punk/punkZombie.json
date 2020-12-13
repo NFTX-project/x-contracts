@@ -1,5 +1,4 @@
-const punkZombieIds = () => {
-  return [
+[
     117,
     987,
     1119,
@@ -87,8 +86,5 @@ const punkZombieIds = () => {
     9838,
     9909,
     9955,
-    9997,
-  ];
-};
-
-module.exports = punkZombieIds;
+    9997
+  ]

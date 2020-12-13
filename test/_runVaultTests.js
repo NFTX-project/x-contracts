@@ -34,6 +34,8 @@ const runVaultTests = async (
 ) => {
   const [owner, misc, alice, bob, carol, dave, eve] = signers;
 
+  const notEligIds = allNftIds.filter((elem) => !eligIds.includes(elem));
+
   //////////////////
   // mint, redeem //
   //////////////////
@@ -248,13 +250,61 @@ const runVaultTests = async (
     console.log("Testing: isEligible...\n");
     await setup(nftx, asset, signers, eligIds);
     let [aliceNFTs] = await holdingsOf(asset, eligIds, [alice]);
-    let nftIds = eligIds.slice(0, 2).map((n) => n + 1);
+    let nftIds = notEligIds.slice(0, 2);
     await transferNFTs(nftx, asset, nftIds, misc, alice);
-
     await expectRevert(approveAndMint(nftx, asset, nftIds, alice, vaultId, 0));
-
     await approveAndMint(nftx, asset, eligIds.slice(0, 2), alice, vaultId, 0);
 
+    await cleanup(nftx, asset, xToken, signers, vaultId, allNftIds);
+  };
+
+  ////////////////////
+  // isEligibleFlip //
+  ////////////////////
+
+  const runIsEligibleFlip = async () => {
+    console.log("Testing: isEligibleFlip...\n");
+    await setup(nftx, asset, signers, eligIds);
+    await nftx.connect(owner).setFlipEligOnRedeem(vaultId, true);
+    let [aliceNFTs] = await holdingsOf(asset, eligIds, [alice]);
+    let nftIds = aliceNFTs.slice(0, 1);
+    await approveAndMint(nftx, asset, nftIds, alice, vaultId, 0);
+    await approveAndRedeem(nftx, xToken, nftIds.length, alice, vaultId, 0);
+    let [newAliceNFTs] = await holdingsOf(asset, eligIds, [alice]);
+    await expect(JSON.stringify(aliceNFTs)).to.equal(
+      JSON.stringify(newAliceNFTs)
+    );
+    await expectRevert(approveAndMint(nftx, asset, nftIds, alice, vaultId, 0));
+    await nftx.connect(owner).setFlipEligOnRedeem(vaultId, false);
+    await cleanup(nftx, asset, xToken, signers, vaultId, allNftIds);
+  };
+
+  /////////////////
+  // requestMint //
+  /////////////////
+
+  const runRequestMint = async () => {
+    console.log("Testing requestMint...\n");
+    await setup(nftx, asset, signers, allNftIds);
+    let [aliceNFTs] = await holdingsOf(asset, notEligIds, [alice]);
+    let nftIds = aliceNFTs.slice(0, 2);
+    await expectRevert(approveAndMint(nftx, asset, nftIds, alice, vaultId, 0));
+    await approveEach(asset, nftIds, alice, nftx.address);
+    await nftx.connect(alice).requestMint(vaultId, nftIds);
+    await nftx.connect(alice).revokeMintRequests(vaultId, nftIds);
+    await expectRevert(nftx.connect(owner).approveMintRequest(vaultId, nftIds));
+    let [newAliceNFTs] = await holdingsOf(asset, notEligIds, [alice]);
+    await expect(JSON.stringify(aliceNFTs)).to.equal(
+      JSON.stringify(newAliceNFTs)
+    );
+    await approveEach(asset, nftIds, alice, nftx.address);
+    await nftx.connect(alice).requestMint(vaultId, nftIds);
+    await expectRevert(nftx.connect(alice).approveMintRequest(vaultId, nftIds));
+    await nftx.connect(owner).approveMintRequest(vaultId, nftIds);
+    await expectRevert(nftx.connect(alice).revokeMintRequests(vaultId, nftIds));
+    await approveAndRedeem(nftx, xToken, nftIds.length, alice, vaultId, 0);
+    await approveAndMint(nftx, asset, nftIds, alice, vaultId, 0);
+    await approveAndRedeem(nftx, xToken, nftIds.length, alice, vaultId, 0);
     await cleanup(nftx, asset, xToken, signers, vaultId, allNftIds);
   };
 
@@ -268,11 +318,13 @@ const runVaultTests = async (
     await runSupplierBountyD2();
   } else {
     await runMintRedeem();
-    await runMintAndRedeem();
+    // await runMintAndRedeem();
     await runMintFeesBurnFees();
-    await runDualFees();
+    // await runDualFees();
     await runSupplierBounty();
     eligIds[1] - eligIds[0] > 1 && (await runIsEligible());
+    eligIds[1] - eligIds[0] > 1 && (await runIsEligibleFlip());
+    eligIds[1] - eligIds[0] > 1 && (await runRequestMint());
   }
 
   console.log("\n-- Vault tests complete --\n\n");

@@ -23,9 +23,12 @@ const initializeAssetTokenVault = async (
   const [owner, misc, alice, bob, carol, dave, eve] = signers;
 
   const XToken = await ethers.getContractFactory("XToken");
-  const xToken = await XToken.deploy(xTokenName, xTokenName.toUpperCase());
+  const xToken = await XToken.deploy(
+    xTokenName,
+    xTokenName.toUpperCase(),
+    nftx.address
+  );
   await xToken.deployed();
-  await xToken.transferOwnership(nftx.address);
 
   let asset;
   if (typeof assetNameOrExistingContract == "string") {
@@ -45,7 +48,10 @@ const initializeAssetTokenVault = async (
     .connect(owner)
     .createVault(xToken.address, asset.address, isD2);
   const receipt = await response.wait(0);
-  const vaultId = receipt.events[0].args[0].toString();
+
+  const vaultId = receipt.events
+    .find((elem) => elem.event === "NewVault")
+    .args[0].toString();
   await nftx.connect(owner).finalizeVault(vaultId);
   if (isD2) {
     if (typeof assetNameOrExistingContract == "string") {
@@ -100,18 +106,25 @@ const cleanup = async (nftx, nft, token, signers, vaultId, eligIds) => {
       await approveAndRedeem(nftx, token, bal, signer, vaultId);
     }
   }
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 40; i++) {
     try {
       const nftId = eligIds[i];
       let addr;
       addr = await nft.ownerOf(nftId);
-      if (addr == misc._address) continue;
-      const signer = signers.find((s) => s._address == addr);
+      if (addr == misc._address) {
+        // console.log(`owner of ${nftId} is misc (${addr})`);
+        continue;
+      }
+      const signerIndex = signers.findIndex((s) => s._address == addr);
+      const signer = signers[signerIndex];
+      /* console.log(
+        `owner of ${nftId} is signer ${signerIndex} (${signer._address})`
+      ); */
       await nft
         .connect(signer)
         .transferFrom(signer._address, misc._address, nftId);
     } catch (err) {
-      console.log("catch:", i, err);
+      // console.log("catch:", i, "continuing...");
       break;
     }
   }
