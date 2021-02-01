@@ -1,4 +1,5 @@
 const { BigNumber } = require("ethers");
+const { ethers } = require("@nomiclabs/buidler");
 
 const BASE = BigNumber.from(10).pow(18);
 const UNIT = BASE.div(100);
@@ -30,6 +31,17 @@ const initializeAssetTokenVault = async (
   );
   await xToken.deployed();
 
+  const XTokenNew = await ethers.getContractFactory("XTokenClonable");
+  const XTokenNew_ = await XTokenNew.deploy();
+  await XTokenNew_.deployed();
+
+  const XTokenFactory = await ethers.getContractFactory("XTokenFactory");
+  const XTokenFactory_ = await XTokenFactory.deploy(
+    XTokenNew_.address
+  );
+  await XTokenFactory_.deployed();
+  await XTokenFactory_.transferOwnership(nftx.address);
+
   let asset;
   if (typeof assetNameOrExistingContract == "string") {
     let name = assetNameOrExistingContract;
@@ -44,9 +56,17 @@ const initializeAssetTokenVault = async (
   } else {
     asset = assetNameOrExistingContract;
   }
+
+  const ClonedXToken = await XTokenFactory_.createXToken(
+    xTokenName,
+    xTokenName.toUpperCase(),
+  );
+
+  console.log(ClonedXToken);
+
   const response = await nftx
     .connect(owner)
-    .createVault(xToken.address, asset.address, isD2);
+    .createVault(ClonedXToken.address, asset.address, isD2);
   const receipt = await response.wait(0);
 
   const vaultId = receipt.events
@@ -60,7 +80,7 @@ const initializeAssetTokenVault = async (
   } else {
     await checkMintNFTs(asset, idsToMint, misc);
   }
-  return { asset, xToken, vaultId };
+  return { asset, ClonedXToken, vaultId };
 };
 
 const checkMintNFTs = async (nft, nftIds, to) => {
