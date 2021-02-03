@@ -164,6 +164,32 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         return ethMax.mul(depth).div(length);
     }
 
+    /* function createVault(
+        address _xTokenAddress,
+        address _assetAddress,
+        bool _isD2Vault
+    ) public virtual nonReentrant returns (uint256) {
+        onlyOwnerIfPaused(0);
+        IXToken xToken = IXToken(_xTokenAddress);
+        require(xToken.owner() == address(this), "Wrong owner");
+        uint256 vaultId = store.addNewVault();
+        store.setXTokenAddress(vaultId, _xTokenAddress);
+
+        store.setXToken(vaultId);
+        if (!_isD2Vault) {
+            store.setNftAddress(vaultId, _assetAddress);
+            store.setNft(vaultId);
+            store.setNegateEligibility(vaultId, true);
+        } else {
+            store.setD2AssetAddress(vaultId, _assetAddress);
+            store.setD2Asset(vaultId);
+            store.setIsD2Vault(vaultId, true);
+        }
+        store.setManager(vaultId, msg.sender);
+        emit NewVault(vaultId, msg.sender);
+        return vaultId;
+    } */
+
     function createVault(
         address _xTokenAddress,
         address _assetAddress,

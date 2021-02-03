@@ -31,16 +31,19 @@ const initializeAssetTokenVault = async (
   );
   await xToken.deployed();
 
-  const XTokenNew = await ethers.getContractFactory("XTokenClonable");
-  const XTokenNew_ = await XTokenNew.deploy();
-  await XTokenNew_.deployed();
+  const XTokenClonable = await ethers.getContractFactory("XTokenClonable");
+  const xToken = await XTokenClonable.deploy();
+  await xToken.deployed();
 
-  const XTokenFactory = await ethers.getContractFactory("XTokenFactory");
-  const XTokenFactory_ = await XTokenFactory.deploy(
-    XTokenNew_.address
+  // Moved this (lower) section to main.js initialization
+
+  /* const XTokenFactory = await ethers.getContractFactory("XTokenFactory");
+  
+  const xTokenFactory = await XTokenFactory.deploy(
+    xToken.address
   );
-  await XTokenFactory_.deployed();
-  await XTokenFactory_.transferOwnership(nftx.address);
+  await xTokenFactory.deployed();
+  await xTokenFactory.transferOwnership(nftx.address); */
 
   let asset;
   if (typeof assetNameOrExistingContract == "string") {
@@ -57,9 +60,9 @@ const initializeAssetTokenVault = async (
     asset = assetNameOrExistingContract;
   }
 
-  const ClonedXToken = await XTokenFactory_.createXToken(
+  const ClonedXToken = await xTokenFactory.createXToken(
     xTokenName,
-    xTokenName.toUpperCase(),
+    xTokenName.toUpperCase()
   );
 
   console.log(ClonedXToken);

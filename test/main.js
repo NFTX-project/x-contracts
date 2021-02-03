@@ -32,12 +32,17 @@ describe("NFTX", function () {
     const xStore = await XStore.deploy();
     await xStore.deployed();
 
+    const XTokenFactory = await ethers.getContractFactory("XTokenFactory");
+    const xTokenFactory = await XTokenFactory.deploy(xToken.address);
+    await xTokenFactory.deployed();
+
     const Nftx = await ethers.getContractFactory("NFTX");
     let nftx = await upgrades.deployProxy(Nftx, [xStore.address], {
       initializer: "initialize",
     });
     await nftx.deployed();
     await xStore.transferOwnership(nftx.address);
+    await xTokenFactory.transferOwnership(nftx.address);
 
     const signers = await ethers.getSigners();
     const [owner, misc, alice, bob, carol, dave, eve, proxyAdmin] = signers;
@@ -175,11 +180,13 @@ describe("NFTX", function () {
       // nftx = await upgrades.upgradeProxy(nftx.address, NFTXv2);
       const nftxV2Address = await upgrades.prepareUpgrade(nftx.address, NFTXv2);
 
-      const ProxyController = await ethers.getContractFactory("ProxyController");
+      const ProxyController = await ethers.getContractFactory(
+        "ProxyController"
+      );
       const pc = await ProxyController.deploy(nftx.address);
       await pc.deployed();
       await upgrades.admin.changeProxyAdmin(nftx.address, pc.address);
-      
+
       await pc.connect(owner).upgradeProxyTo(nftxV2Address);
       nftx = NFTXv2.attach(nftx.address);
 
