@@ -2,7 +2,8 @@
 pragma solidity 0.6.8;
 
 import "./Pausable.sol";
-import "./IXToken.sol";
+import "./IXTokenClonable.sol";
+import "./IXTokenFactory.sol";
 import "./IERC721.sol";
 import "./ReentrancyGuard.sol";
 import "./ERC721Holder.sol";
@@ -30,6 +31,7 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
     event MintRequested(uint256 vaultId, uint256[] nftIds, address sender);
 
     IXStore public store;
+    IXTokenFactory public xTokenFactory;
 
     function initialize(address storeAddress) public initializer {
         initOwnable();
@@ -38,7 +40,6 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
     }
 
     /* function onlyManager(uint256 vaultId) internal view {
-        
     } */
 
     function onlyPrivileged(uint256 vaultId) internal view {
@@ -190,17 +191,20 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         return vaultId;
     } */
 
+    function setXTokenFactoryAddress(address a) public onlyOwner {
+      xTokenFactory = IXTokenFactory(a);
+    }
+
     function createVault(
-        address _xTokenAddress,
+        string memory name,
+        string memory symbol,
         address _assetAddress,
         bool _isD2Vault
     ) public virtual nonReentrant returns (uint256) {
         onlyOwnerIfPaused(0);
-        IXToken xToken = IXToken(_xTokenAddress);
-        require(xToken.owner() == address(this), "Wrong owner");
+        IXTokenClonable xToken = xTokenFactory.createXToken(name, symbol);
         uint256 vaultId = store.addNewVault();
-        store.setXTokenAddress(vaultId, _xTokenAddress);
-
+        store.setXTokenAddress(vaultId, address(xToken));
         store.setXToken(vaultId);
         if (!_isD2Vault) {
             store.setNftAddress(vaultId, _assetAddress);

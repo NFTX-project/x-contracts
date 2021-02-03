@@ -13,7 +13,7 @@ contract XTokenClonable is MOwnable, MERC20Burnable {
     initialized = true;
   }
 
-  function init(string memory name, string memory symbol, address _owner) public {
+  function init(string calldata name, string calldata symbol, address _owner) external {
     require(!initialized, "Initialized");
     initialized = true;
     _mint(msg.sender, 0);
