@@ -314,12 +314,12 @@ const runVaultTests = async (
 
   if (isD2) {
     await runMintRedeemD2();
-    await runMintFeesBurnFeesD2();
-    await runSupplierBountyD2();
+    // await runMintFeesBurnFeesD2();
+    // await runSupplierBountyD2();
   } else {
     await runMintRedeem();
     // await runMintAndRedeem();
-    await runMintFeesBurnFees();
+    // await runMintFeesBurnFees();
     // await runDualFees();
     await runSupplierBounty();
     eligIds[1] - eligIds[0] > 1 && (await runIsEligible());

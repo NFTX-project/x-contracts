@@ -192,7 +192,7 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
     } */
 
     function setXTokenFactoryAddress(address a) public onlyOwner {
-      xTokenFactory = IXTokenFactory(a);
+        xTokenFactory = IXTokenFactory(a);
     }
 
     function createVault(
@@ -305,10 +305,10 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         onlyPrivileged(vaultId);
         for (uint256 i = 0; i < nftIds.length; i = i.add(1)) {
             address requester = store.requester(vaultId, nftIds[i]);
-            require(requester != address(0), "No request");
+            require(requester != address(0), "W6Q");
             require(
                 store.nft(vaultId).ownerOf(nftIds[i]) == address(this),
-                "Not owner"
+                "X9M"
             );
             store.setRequester(vaultId, nftIds[i], address(0));
             store.setIsEligible(vaultId, nftIds[i], true);
@@ -327,20 +327,14 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
     {
         for (uint256 i = 0; i < nftIds.length; i = i.add(1)) {
             uint256 nftId = nftIds[i];
-            require(isEligible(vaultId, nftId), "Not eligible");
-            require(
-                store.nft(vaultId).ownerOf(nftId) != address(this),
-                "Already owner"
-            );
+            require(isEligible(vaultId, nftId), "D5V");
+            require(store.nft(vaultId).ownerOf(nftId) != address(this), "X0M");
             store.nft(vaultId).safeTransferFrom(
                 msg.sender,
                 address(this),
                 nftId
             );
-            require(
-                store.nft(vaultId).ownerOf(nftId) == address(this),
-                "Not received"
-            );
+            require(store.nft(vaultId).ownerOf(nftId) == address(this), "G6N");
             if (store.shouldReserve(vaultId, nftId)) {
                 store.reservesAdd(vaultId, nftId);
             } else {
@@ -405,7 +399,7 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
             require(
                 store.holdingsContains(vaultId, nftId) ||
                     store.reservesContains(vaultId, nftId),
-                "NFT not in vault"
+                "V4L"
             );
             if (store.holdingsContains(vaultId, nftId)) {
                 store.holdingsRemove(vaultId, nftId);
@@ -604,7 +598,7 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
 
     function finalizeVault(uint256 vaultId) public virtual {
         onlyPrivileged(vaultId);
-        require(!store.isFinalized(vaultId), "Already finalized");
+        require(!store.isFinalized(vaultId), "A1C");
         store.setIsFinalized(vaultId, true);
     }
 
@@ -613,21 +607,21 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         store.setIsClosed(vaultId, true);
     }
 
-    function setMintFees(uint256 vaultId, uint256 _ethBase, uint256 _ethStep)
+    /* function setMintFees(uint256 vaultId, uint256 _ethBase, uint256 _ethStep)
         public
         virtual
     {
         onlyPrivileged(vaultId);
         store.setMintFees(vaultId, _ethBase, _ethStep);
-    }
+    } */
 
-    function setBurnFees(uint256 vaultId, uint256 _ethBase, uint256 _ethStep)
+    /* function setBurnFees(uint256 vaultId, uint256 _ethBase, uint256 _ethStep)
         public
         virtual
     {
         onlyPrivileged(vaultId);
         store.setBurnFees(vaultId, _ethBase, _ethStep);
-    }
+    } */
 
     /* function setDualFees(uint256 vaultId, uint256 _ethBase, uint256 _ethStep)
         public

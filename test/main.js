@@ -32,17 +32,27 @@ describe("NFTX", function () {
     const xStore = await XStore.deploy();
     await xStore.deployed();
 
-    const XTokenFactory = await ethers.getContractFactory("XTokenFactory");
-    const xTokenFactory = await XTokenFactory.deploy(xToken.address);
-    await xTokenFactory.deployed();
-
     const Nftx = await ethers.getContractFactory("NFTX");
     let nftx = await upgrades.deployProxy(Nftx, [xStore.address], {
       initializer: "initialize",
     });
     await nftx.deployed();
     await xStore.transferOwnership(nftx.address);
+
+    const XToken = await ethers.getContractFactory("XToken");
+    const xToken = await XToken.deploy(
+      "XToken Template",
+      "XTOKEN-TEMPLATE",
+      nftx.address
+    );
+    await xToken.deployed();
+
+    const XTokenFactory = await ethers.getContractFactory("XTokenFactory");
+    const xTokenFactory = await XTokenFactory.deploy(xToken.address);
+    await xTokenFactory.deployed();
     await xTokenFactory.transferOwnership(nftx.address);
+
+    await nftx.setXTokenFactoryAddress(xTokenFactory.address);
 
     const signers = await ethers.getSigners();
     const [owner, misc, alice, bob, carol, dave, eve, proxyAdmin] = signers;

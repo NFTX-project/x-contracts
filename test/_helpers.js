@@ -23,13 +23,13 @@ const initializeAssetTokenVault = async (
 ) => {
   const [owner, misc, alice, bob, carol, dave, eve] = signers;
 
-  const XToken = await ethers.getContractFactory("XToken");
+  /* const XToken = await ethers.getContractFactory("XToken");
   const xToken = await XToken.deploy(
     xTokenName,
     xTokenName.toUpperCase(),
     nftx.address
   );
-  await xToken.deployed();
+  await xToken.deployed(); */
 
   const XTokenClonable = await ethers.getContractFactory("XTokenClonable");
   const xToken = await XTokenClonable.deploy();
@@ -60,16 +60,16 @@ const initializeAssetTokenVault = async (
     asset = assetNameOrExistingContract;
   }
 
-  const ClonedXToken = await xTokenFactory.createXToken(
+  /* const ClonedXToken = await xTokenFactory.createXToken(
     xTokenName,
     xTokenName.toUpperCase()
-  );
+  ); */
 
-  console.log(ClonedXToken);
+  // console.log(ClonedXToken);
 
   const response = await nftx
     .connect(owner)
-    .createVault(ClonedXToken.address, asset.address, isD2);
+    .createVault(xTokenName, xTokenName.toUpperCase(), asset.address, isD2);
   const receipt = await response.wait(0);
 
   const vaultId = receipt.events
