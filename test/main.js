@@ -39,12 +39,8 @@ describe("NFTX", function () {
     await nftx.deployed();
     await xStore.transferOwnership(nftx.address);
 
-    const XToken = await ethers.getContractFactory("XToken");
-    const xToken = await XToken.deploy(
-      "XToken Template",
-      "XTOKEN-TEMPLATE",
-      nftx.address
-    );
+    const XToken = await ethers.getContractFactory("XTokenClonable");
+    const xToken = await XToken.deploy();
     await xToken.deployed();
 
     const XTokenFactory = await ethers.getContractFactory("XTokenFactory");

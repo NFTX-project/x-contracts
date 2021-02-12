@@ -6,7 +6,7 @@ import "./IERC20.sol";
 
 interface IXTokenClonable is IERC20 {
 
-    function init(string calldata name, string calldata symbol, address _owner) external;
+    function initialize(string calldata name, string calldata symbol, address _owner) external;
 
     function owner() external returns (address);
 

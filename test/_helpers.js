@@ -23,28 +23,6 @@ const initializeAssetTokenVault = async (
 ) => {
   const [owner, misc, alice, bob, carol, dave, eve] = signers;
 
-  /* const XToken = await ethers.getContractFactory("XToken");
-  const xToken = await XToken.deploy(
-    xTokenName,
-    xTokenName.toUpperCase(),
-    nftx.address
-  );
-  await xToken.deployed(); */
-
-  const XTokenClonable = await ethers.getContractFactory("XTokenClonable");
-  const xToken = await XTokenClonable.deploy();
-  await xToken.deployed();
-
-  // Moved this (lower) section to main.js initialization
-
-  /* const XTokenFactory = await ethers.getContractFactory("XTokenFactory");
-  
-  const xTokenFactory = await XTokenFactory.deploy(
-    xToken.address
-  );
-  await xTokenFactory.deployed();
-  await xTokenFactory.transferOwnership(nftx.address); */
-
   let asset;
   if (typeof assetNameOrExistingContract == "string") {
     let name = assetNameOrExistingContract;
@@ -60,13 +38,6 @@ const initializeAssetTokenVault = async (
     asset = assetNameOrExistingContract;
   }
 
-  /* const ClonedXToken = await xTokenFactory.createXToken(
-    xTokenName,
-    xTokenName.toUpperCase()
-  ); */
-
-  // console.log(ClonedXToken);
-
   const response = await nftx
     .connect(owner)
     .createVault(xTokenName, xTokenName.toUpperCase(), asset.address, isD2);
@@ -75,7 +46,17 @@ const initializeAssetTokenVault = async (
   const vaultId = receipt.events
     .find((elem) => elem.event === "NewVault")
     .args[0].toString();
+
+  const xTokenAddress = receipt.events
+    .find((elem) => elem.event === "NewXToken")
+    .args[0].toString();
+
+  // Somehow, this isn't returning the right value, buidler complains it's undefined. I'm not sure how to check if the contract (i.e. XTokenFactory is actually outputting something.)
+
+  // const ClonedXToken = await ethers.getContractAt("XTokenClonable");
+  
   await nftx.connect(owner).finalizeVault(vaultId);
+
   if (isD2) {
     if (typeof assetNameOrExistingContract == "string") {
       await asset.mint(misc._address, BASE.mul(1000));

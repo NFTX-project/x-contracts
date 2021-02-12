@@ -2,7 +2,7 @@
 pragma solidity 0.6.8;
 
 import "./Pausable.sol";
-import "./IXTokenClonable.sol";
+import "./IXToken.sol";
 import "./IXTokenFactory.sol";
 import "./IERC721.sol";
 import "./ReentrancyGuard.sol";
@@ -191,8 +191,10 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         return vaultId;
     } */
 
+    event NewXToken(address a);
+
     function setXTokenFactoryAddress(address a) public onlyOwner {
-        xTokenFactory = IXTokenFactory(a);
+      xTokenFactory = IXTokenFactory(a);
     }
 
     function createVault(
@@ -202,9 +204,9 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         bool _isD2Vault
     ) public virtual nonReentrant returns (uint256) {
         onlyOwnerIfPaused(0);
-        IXTokenClonable xToken = xTokenFactory.createXToken(name, symbol);
+        address xTokenAddress = xTokenFactory.createXToken(name, symbol);
         uint256 vaultId = store.addNewVault();
-        store.setXTokenAddress(vaultId, address(xToken));
+        store.setXTokenAddress(vaultId, xTokenAddress);
         store.setXToken(vaultId);
         if (!_isD2Vault) {
             store.setNftAddress(vaultId, _assetAddress);
@@ -217,6 +219,7 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         }
         store.setManager(vaultId, msg.sender);
         emit NewVault(vaultId, msg.sender);
+        emit NewXToken(xTokenAddress);
         return vaultId;
     }
 
@@ -575,21 +578,21 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         }
     } */
 
-    function changeTokenName(uint256 vaultId, string memory newName)
-        public
-        virtual
-    {
-        onlyPrivileged(vaultId);
-        store.xToken(vaultId).changeName(newName);
-    }
+    // function changeTokenName(uint256 vaultId, string memory newName)
+    //     public
+    //     virtual
+    // {
+    //     onlyPrivileged(vaultId);
+    //     store.xToken(vaultId).changeName(newName);
+    // }
 
-    function changeTokenSymbol(uint256 vaultId, string memory newSymbol)
-        public
-        virtual
-    {
-        onlyPrivileged(vaultId);
-        store.xToken(vaultId).changeSymbol(newSymbol);
-    }
+    // function changeTokenSymbol(uint256 vaultId, string memory newSymbol)
+    //     public
+    //     virtual
+    // {
+    //     onlyPrivileged(vaultId);
+    //     store.xToken(vaultId).changeSymbol(newSymbol);
+    // }
 
     function setManager(uint256 vaultId, address newManager) public virtual {
         onlyPrivileged(vaultId);
@@ -631,12 +634,12 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         store.setDualFees(vaultId, _ethBase, _ethStep);
     } */
 
-    function setSupplierBounty(uint256 vaultId, uint256 ethMax, uint256 length)
-        public
-        virtual
-    {
-        onlyPrivileged(vaultId);
-        store.setSupplierBounty(vaultId, ethMax, length);
-    }
+    // function setSupplierBounty(uint256 vaultId, uint256 ethMax, uint256 length)
+    //     public
+    //     virtual
+    // {
+    //     onlyPrivileged(vaultId);
+    //     store.setSupplierBounty(vaultId, ethMax, length);
+    // }
 
 }
