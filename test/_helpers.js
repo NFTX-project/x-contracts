@@ -14,6 +14,7 @@ const getIntArray = (firstElem, firstNonElem) => {
 };
 
 const initializeAssetTokenVault = async (
+  xstore,
   nftx,
   signers,
   assetNameOrExistingContract,
@@ -46,16 +47,14 @@ const initializeAssetTokenVault = async (
   const vaultId = receipt.events
     .find((elem) => elem.event === "NewVault")
     .args[0].toString();
-
-  const xTokenAddress = receipt.events
-    .find((elem) => elem.event === "NewXToken")
-    .args[0].toString();
-
-  // Somehow, this isn't returning the right value, buidler complains it's undefined. I'm not sure how to check if the contract (i.e. XTokenFactory is actually outputting something.)
-
-  // const ClonedXToken = await ethers.getContractAt("XTokenClonable");
   
   await nftx.connect(owner).finalizeVault(vaultId);
+
+  // Somehow, this is returning undefined everywhere else...?
+
+  let xTokenAddress = await xstore.xTokenAddress(vaultId);
+  let ClonedXToken = await ethers.getContractAt("XTokenClonable", xTokenAddress);
+  await ClonedXToken.deployed();
 
   if (isD2) {
     if (typeof assetNameOrExistingContract == "string") {
@@ -64,7 +63,9 @@ const initializeAssetTokenVault = async (
   } else {
     await checkMintNFTs(asset, idsToMint, misc);
   }
-  return { asset, ClonedXToken, vaultId };
+
+  console.log(ClonedXToken);
+  return { asset, xTokenAddress, vaultId };
 };
 
 const checkMintNFTs = async (nft, nftIds, to) => {
@@ -175,6 +176,9 @@ const balancesOf = async (token, accounts) => {
 };
 
 const checkBalances = async (nftx, nft, xToken, users) => {
+
+  console.log(xToken);
+
   let tokenAmount = BigNumber.from(0);
   for (let i = 0; i < users.length; i++) {
     const user = users[i];

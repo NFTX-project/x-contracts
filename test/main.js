@@ -60,7 +60,7 @@ describe("NFTX", function () {
     ///////////////
 
     const runNftBasic = async () => {
-      const { asset, xToken, vaultId } = await initializeAssetTokenVault(
+      const { asset, xToken, vaultId } = await initializeAssetTokenVault(xStore,
         nftx,
         signers,
         "NFT",
@@ -68,6 +68,9 @@ describe("NFTX", function () {
         allNftIds,
         false
       );
+
+      console.log(vaultId);
+
       const eligIds = getIntArray(0, 20);
       await runVaultTests(
         nftx,
@@ -87,7 +90,7 @@ describe("NFTX", function () {
 
     let _asset;
     const runNftSpecial = async () => {
-      const { asset, xToken, vaultId } = await initializeAssetTokenVault(
+      const { asset, xToken, vaultId } = await initializeAssetTokenVault(xStore,
         nftx,
         signers,
         "NFT",
@@ -120,7 +123,7 @@ describe("NFTX", function () {
         console.log("No _asset object...");
         return;
       }
-      const { asset, xToken, vaultId } = await initializeAssetTokenVault(
+      const { asset, xToken, vaultId } = await initializeAssetTokenVault(xStore,
         nftx,
         signers,
         _asset,
@@ -150,7 +153,7 @@ describe("NFTX", function () {
     //////////////
 
     const runD2Vault = async () => {
-      const { asset, xToken, vaultId } = await initializeAssetTokenVault(
+      const { asset, xToken, vaultId } = await initializeAssetTokenVault(xStore,
         nftx,
         signers,
         "Punk-BPT",
@@ -168,7 +171,7 @@ describe("NFTX", function () {
     const runContractUpgrade = async () => {
       console.log("Testing: Contract upgrade...\n");
 
-      const { asset, xToken, vaultId } = await initializeAssetTokenVault(
+      const { asset, xToken, vaultId } = await initializeAssetTokenVault(xStore,
         nftx,
         signers,
         "NFT",

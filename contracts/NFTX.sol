@@ -191,8 +191,6 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         return vaultId;
     } */
 
-    event NewXToken(address a);
-
     function setXTokenFactoryAddress(address a) public onlyOwner {
       xTokenFactory = IXTokenFactory(a);
     }
@@ -219,7 +217,6 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         }
         store.setManager(vaultId, msg.sender);
         emit NewVault(vaultId, msg.sender);
-        emit NewXToken(xTokenAddress);
         return vaultId;
     }
 
