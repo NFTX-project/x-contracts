@@ -631,12 +631,12 @@ contract NFTX is Pausable, ReentrancyGuard, ERC721Holder {
         store.setDualFees(vaultId, _ethBase, _ethStep);
     } */
 
-    // function setSupplierBounty(uint256 vaultId, uint256 ethMax, uint256 length)
-    //     public
-    //     virtual
-    // {
-    //     onlyPrivileged(vaultId);
-    //     store.setSupplierBounty(vaultId, ethMax, length);
-    // }
+    function setSupplierBounty(uint256 vaultId, uint256 ethMax, uint256 length)
+        public
+        virtual
+    {
+        onlyPrivileged(vaultId);
+        store.setSupplierBounty(vaultId, ethMax, length);
+    }
 
 }

@@ -64,8 +64,7 @@ const initializeAssetTokenVault = async (
     await checkMintNFTs(asset, idsToMint, misc);
   }
 
-  console.log(ClonedXToken);
-  return { asset, xTokenAddress, vaultId };
+  return { asset: asset, xToken: ClonedXToken, vaultId:vaultId };
 };
 
 const checkMintNFTs = async (nft, nftIds, to) => {
